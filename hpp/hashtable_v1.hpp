@@ -1,5 +1,7 @@
 #pragma once
 
+#define MAX_NAME 32
+
 enum exits{
 
     OK  = 0,
@@ -9,7 +11,7 @@ enum exits{
 
 typedef struct bucket_t{
 
-    const char* name;
+    char name[MAX_NAME];
     bucket_t* next;
 
 } bucket_t;
@@ -26,3 +28,4 @@ int hashTblDump (hashTbl_t* hashtbl);
 int hashTblAdd  (hashTbl_t* hashtbl, const char* name);
 int hashTblFind (hashTbl_t* hashtbl, const char* name);
 int hashTblCtor (hashTbl_t** hashtbl);
+int textParse   (hashTbl_t* hashtbl, const char* file);

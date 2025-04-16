@@ -24,5 +24,8 @@ v1:       ./bin/main.o ./bin/hashtable_v1.o
 ./bin/hashtable_v1.o: src/hashtable_v1.cpp hpp/hashtable_v1.hpp
 	$(CXX) -c ./src/hashtable_v1.cpp $(CXXFLAGS) -o ./bin/hashtable_v1.o
 
+parser: src/parser.cpp
+	$(CXX) ./src/parser.cpp -o parser
+
 clean:
-	rm main ./bin/*.o
+	rm main parser ./bin/*.o
