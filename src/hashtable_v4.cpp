@@ -9,6 +9,7 @@
 #include <ctype.h>
 #include <immintrin.h>
 #include <math.h>
+#include <stdint.h>
 
 #define MEOW fprintf(stderr, "MEOW\n");
 
@@ -24,12 +25,15 @@ int         hashTblAdd      (hashTbl_t* hashtbl, char* name);
 int         hashTblFind     (hashTbl_t* hashtbl, char* name);
 int         listFind        (hashTbl_t* hashtbl, bucket_t*  list,    char* name);
 int         bucketAdd       (hashTbl_t* hashtbl, bucket_t** list,    char* name);
-uint        countHash       (char* name);
 int         textParse       (hashTbl_t* hashtbl, const char* file);
 size_t      getFileSize     (const char* filename);
 double      doTest          (hashTbl_t* hashtbl, const char* name);
 int         checkBucketSizes(hashTbl_t* hashtbl);
 int         crc32_bitwise   (const void* data, size_t length);
+
+unsigned long long    countHash  (char* name);
+extern "C" int        meowcmp    (char* a, char* b);
+extern "C" int        strlen_memcpy    (char* to, char* from);
 
 //=====================================================//
 
@@ -116,11 +120,35 @@ int hashTblAdd(hashTbl_t* hashtbl, char* name){
     if (hashTblVtor(hashtbl)) return ERR;
 
     char smallBuff[MAX_NAME] = {};
-    int len = strlen(name);
-    memcpy(smallBuff, name, len);
+    // int len = strlen(name);
+    // memcpy(smallBuff, name, len);
 
+    strlen_memcpy(smallBuff, name);
+    // asm(".intel_syntax noprefix\n\t"
+    //     "push rcx\n\t"
+    //     "push rdi\n\t"
+    //     "push rsi\n\t"
+    //     "inline_asm_loop:\n\t"
+    //     // "lodsb\n\t"
+    //     "mov cl, [rsi]\n\t"
+    //     "inc rsi\n\t"
+    //     "cmp cl, 0\n\t"
+    //     "je inline_asm_end\n\t"
+    //     //"stosb\n\t"
+    //     "mov [rdi], cl\n\t"
+    //     "inc rdi\n\t"
+    //     "jmp inline_asm_loop\n\t"
+    //     "inline_asm_end:\n\t"
+    //     "pop rsi\n\t"
+    //     "pop rdi\n\t"
+    //     "pop rcx\n\t"
+    //     ".att_syntax prefix\n\t"
+    //     : /*no output*/
+    //     : "D"(smallBuff), "S"(name)
+    //     :
+    //     );
 
-    uint hash = countHash(smallBuff);
+    unsigned long long hash = countHash(smallBuff);
     bucketAdd(hashtbl, hashtbl->buckets + hash % NUM_BCKT, smallBuff);
 
     return OK;
@@ -135,8 +163,16 @@ int bucketAdd(hashTbl_t* hashtbl, bucket_t** list, char* name){
 
     *list = (bucket_t*)calloc(1, sizeof(bucket_t));
 
-    int len = strlen(name) % MAX_NAME;
-    memcpy((*list)->name, name, MAX_NAME);
+    // int len = strlen(name) % MAX_NAME;
+    //memcpy((*list)->name, name, MAX_NAME);
+    asm(".intel_syntax noprefix\n"
+        "vmovups ymm0, ymmword ptr [rdi]\n"
+        "vmovups ymmword ptr [rsi], ymm0\n"
+        ".att_syntax prefix\n"
+        : /*no input*/
+        : "D"(name), "S"((*list)->name)
+        : "ymm0"
+        );
 
     (*list)->next = old_list;
 
@@ -147,7 +183,7 @@ int bucketAdd(hashTbl_t* hashtbl, bucket_t** list, char* name){
 int hashTblFind(hashTbl_t* hashtbl, char* name){
     if (hashTblVtor(hashtbl)) return ERR;
 
-    volatile uint hash = countHash(name);
+    volatile unsigned long long hash = countHash(name);
 
     volatile int found = listFind(hashtbl, hashtbl->buckets[hash % NUM_BCKT], name);
     if (!found) printf(CYN "%s not found!\n" RST, name);
@@ -158,35 +194,16 @@ int hashTblFind(hashTbl_t* hashtbl, char* name){
 
 //=====================================================//
 
-uint countHash(char* name){
+unsigned long long countHash(char* name){
 
-    int length = MAX_NAME;
-    uint crc = 0xFFFFFFFF; // same as previousCrc32 ^ 0xFFFFFFFF
-    for(int i = 0; i < MAX_NAME; i++){
-        crc = crc ^ (name[i]);
-        for (unsigned int j = 0; j < 8; j++){
-            if (crc & 1){ crc = (crc >> 1) ^ POLYNOM;}
-            else{ crc = crc >> 1;}
-        }
+    unsigned long long crc = 0xFFFFFFFFFFFFFFFF; // same as previousCrc32 ^ 0xFFFFFFFF
+    for (int i = 0; i < MAX_NAME / 8; i++){
+        unsigned long long next = *((unsigned long long*)name + i);
+        crc = _mm_crc32_u64(crc, next);
     }
 
-    return ~crc;
+    return crc;
 }
-
-//=====================================================//
-
-// int crc32_bitwise(const void* data, size_t length){
-//     uint crc = 0xFFFFFFFF; // same as previousCrc32 ^ 0xFFFFFFFF
-//     unsigned char* current = (unsigned char*) data;
-//     while (length--)
-//     {
-//         crc ^= *current++;
-//         for (unsigned int j = 0; j < 8; j++)
-//             if (crc & 1) crc = (crc >> 1) ^ POLYNOM;
-//             else crc = crc >> 1;
-//     }
-//     return ~crc; // same as crc ^ 0xFFFFFFFF
-// }
 
 //=====================================================//
 
@@ -194,7 +211,7 @@ int listFind(hashTbl_t* hashtbl, bucket_t* list, char* name){
     int found = 0;
 
     for (bucket_t* j = list; j != 0; j = j->next){
-        if (!strncmp(j->name, name, MAX_NAME)){
+        if (!(~meowcmp(j->name, name))){
             found = 1;
             break;
         };
