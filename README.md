@@ -209,7 +209,7 @@ int bucketAdd(hashTbl_t* hashtbl, bucket_t** list, char* name){
 
 Однако, это не привело ни к каким изменениям ни в отчёте `valgrind`'а, ни `perf`'а, ни времени работы. Для анализа ситуации пришлось воспользоваться [godbolt](https://godbolt.org)'ом:
 
-# screen1
+# Скриншоты из godbolt'а
 <img src="https://github.com/user-attachments/assets/49fd1f63-1630-420d-b347-c6f67df1948a" width="800">
 <img src="https://github.com/user-attachments/assets/e0fec5dc-914a-47f4-a48e-228c3bdc5d83" width="800">
 <img src="https://github.com/user-attachments/assets/d1e67ed4-5058-45a5-9e1b-733976e02fff" width="800">
