@@ -62,11 +62,12 @@ uint countHash(char* name){
 Воспользуемся, например, профилировщиком `valgrind` с утилитой `callgrind` и графической оболочкой для просмотра результатов `kachegrind`:
 
 # Картинка v1
-![IMAGE 2025-04-26 00:19:17](https://github.com/user-attachments/assets/73bd46f0-188c-4178-ae22-471c93eb95cb)
+<img src="https://github.com/user-attachments/assets/73bd46f0-188c-4178-ae22-471c93eb95cb" width="800">
+
 
 # Картинка v1_O3
-![IMAGE 2025-04-26 00:19:40](https://github.com/user-attachments/assets/97042b39-3bc6-4ede-8f01-e9601f7d8e75)
-![IMAGE 2025-04-26 00:19:53](https://github.com/user-attachments/assets/5c8230df-48b0-4f39-9057-7ca626e92ea8)
+<img src="https://github.com/user-attachments/assets/97042b39-3bc6-4ede-8f01-e9601f7d8e75" width="800">
+<img src="https://github.com/user-attachments/assets/5c8230df-48b0-4f39-9057-7ca626e92ea8" width="800">
 
 Можно заметить, что процент времени занимаемый функциями `hashTableAdd` и `hashTableFind` сильно возрос, а `countHash` пропала вовсе, это происходит из-за инлайнинга функции расчёта хэша в них. Получается, самая используемая функция это `countHash` (не особо и удивительно). Перепишем её используя `intrinsic`-функции:
 
@@ -96,8 +97,8 @@ unsigned long long countHash(char* name){
 Результаты ожидаемые, найдём следующее узкое место в программе.
 
 # Картинка v2_O3
-![IMAGE 2025-04-26 00:21:54](https://github.com/user-attachments/assets/06bbd8cc-56a7-45e5-ba3d-767f1b6e738b)
-![IMAGE 2025-04-26 00:21:56](https://github.com/user-attachments/assets/8fa4bc00-f91d-4e43-8b12-40f1d3ca162e)
+<img src="https://github.com/user-attachments/assets/06bbd8cc-56a7-45e5-ba3d-767f1b6e738b" width="800">
+<img src="https://github.com/user-attachments/assets/8fa4bc00-f91d-4e43-8b12-40f1d3ca162e" width="800">
 
 Видим, что время работы программы упало в 3 раза, а доля `strncmp` возросла в ~7 раз - выбор был сделан верный, тут же отчётливо видна следующее место для оптимизации. Так как нам не нужен полный функционал `strncmp`, а нам нужно знать равны ли две строки между собой, покопаемся в [intel intrinsics guide](https://www.laruence.com/sse/#cats=Compare&techs=AVX,AVX2&expand=900) и найдём нужную нам SIMD-инструкцию.
 
@@ -124,15 +125,15 @@ meowcmp:
 Посмотрим на результаты такого урезания `strncmp` под нашу задачу.
 
 # Картинка v3_O3
-![IMAGE 2025-04-26 00:22:05](https://github.com/user-attachments/assets/f6a9e854-074a-4bfe-b25c-bbd0a422f459)
+<img src="https://github.com/user-attachments/assets/f6a9e854-074a-4bfe-b25c-bbd0a422f459" width="800">
 
 Для проверки воспользуемся `perf`'ом.
 
 # Картинка v3_O3
-![IMAGE 2025-04-26 00:22:08](https://github.com/user-attachments/assets/1e991c28-20f1-4f27-9046-34bbdec3b4d0)
+<img src="https://github.com/user-attachments/assets/1e991c28-20f1-4f27-9046-34bbdec3b4d0" width="800">
 
 # Картинка v3_O3
-![IMAGE 2025-04-26 00:22:24](https://github.com/user-attachments/assets/1f12bf7b-d799-41a6-af3b-e524f10765bb)
+<img src="https://github.com/user-attachments/assets/1f12bf7b-d799-41a6-af3b-e524f10765bb" width="800">
 
 
 В основном результаты профилировщиков коррелируют между собой, однако при записи этих данных у `perf`'а наблюдался некоторый разброс в показаниях. Это связано с механизмом работы самого профилировщика. А вот результаты измерений времени:
@@ -209,11 +210,11 @@ int bucketAdd(hashTbl_t* hashtbl, bucket_t** list, char* name){
 Однако, это не привело ни к каким изменениям ни в отчёте `valgrind`'а, ни `perf`'а, ни времени работы. Для анализа ситуации пришлось воспользоваться [godbolt](https://godbolt.org)'ом:
 
 # screen1
-![IMAGE 2025-04-26 00:22:50](https://github.com/user-attachments/assets/49fd1f63-1630-420d-b347-c6f67df1948a)
-![IMAGE 2025-04-26 00:22:54](https://github.com/user-attachments/assets/e0fec5dc-914a-47f4-a48e-228c3bdc5d83)
-![IMAGE 2025-04-26 00:23:00](https://github.com/user-attachments/assets/d1e67ed4-5058-45a5-9e1b-733976e02fff)
-![IMAGE 2025-04-26 00:23:06](https://github.com/user-attachments/assets/1775dc07-8847-41d8-9bf2-0195301e929e)
-![IMAGE 2025-04-26 00:23:43](https://github.com/user-attachments/assets/7b3df138-1b94-4962-9cc5-dbe06e6329b8)
+<img src="https://github.com/user-attachments/assets/49fd1f63-1630-420d-b347-c6f67df1948a" width="800">
+<img src="https://github.com/user-attachments/assets/e0fec5dc-914a-47f4-a48e-228c3bdc5d83" width="800">
+<img src="https://github.com/user-attachments/assets/d1e67ed4-5058-45a5-9e1b-733976e02fff" width="800">
+<img src="https://github.com/user-attachments/assets/1775dc07-8847-41d8-9bf2-0195301e929e" width="800">
+<img src="https://github.com/user-attachments/assets/7b3df138-1b94-4962-9cc5-dbe06e6329b8" width="800">
 
 Оказалось, что оптимизатор уже делал практически ту же самую вещь, только тратил на это 4 инструкции, а не 2. К тому же тут была замечена неиспользуемая нигде функция, которая благополучно выкидывалась оптимизатором компилятора. По этой же причине не было заметно отличий в результате `valgrind`'а, так как никакого вызова `memcpy` и не было. В таком случае, попробуем что-то сделать с первым вызовом. 
 
@@ -253,26 +254,26 @@ strlen_memcpy:
 | Погрешность       |  0,01    |    0,01    |0,06           | 0,04          |0,03          |
 
 # Картинка v4_O3
-![IMAGE 2025-04-26 00:28:03](https://github.com/user-attachments/assets/556f7c17-bc30-4dfa-88d0-5a1042c1a4ea)
+<img src="https://github.com/user-attachments/assets/556f7c17-bc30-4dfa-88d0-5a1042c1a4ea" width="800">
 
 Исходя из репорта `valgrind`'а можно сделать немало выводов, например, функция `hashTableAdd` теперь заинлайнена в `textParse`, время занятое неким `0x0..01360` сильно увеличилось, как и количество обращений к этому адресу, воспользуеся `perf`'ом для разъяснения ситуации.
 
 # Картинка perf1
-![IMAGE 2025-04-26 00:28:25](https://github.com/user-attachments/assets/088a73d1-75c1-42b9-ba33-624a1fc556ba)
+<img src="https://github.com/user-attachments/assets/088a73d1-75c1-42b9-ba33-624a1fc556ba" width="800">
 
 
 # Картинка perf2
-![IMAGE 2025-04-26 00:28:08](https://github.com/user-attachments/assets/d1079a87-61cc-4571-89fb-6497e9aec622)
+<img src="https://github.com/user-attachments/assets/d1079a87-61cc-4571-89fb-6497e9aec622" width="800">
 
 Даже на этих двух отчётах видно, что частоты "скринов" `perf`'а в 100кГц (максимальная частота) не хватает для абсолютно точного получения данных. Итак, `hashTableAdd` и правда пропал с радаров и был заинлайнен, однако, достаточной информации по эффективности `strlen_memcpy` собрать сложно, так как нам не хватает точности `perf`'а, если сравнивать результаты `valgrind`'а с `perf`'ом, то я считаю, `valgrind` ближее к правде - мы избавились от `memcpy` и `strlen` на ~4%, но появился `0x0..01d70` на ~1%, которым, в теории и должен быть наш `strlen_memcpy`. Итого, разница между ними ~3%, что сходится с экспериментальными данными. Это можно подтвердить или опровергнуть используя дизассемблер.
 
 # Вот собственно и скрин из IDA'ы
-![IMAGE 2025-04-26 00:28:33](https://github.com/user-attachments/assets/b65a1aad-6e2c-4160-8370-b3f4a5abc886)
+<img src="https://github.com/user-attachments/assets/b65a1aad-6e2c-4160-8370-b3f4a5abc886" width="800">
 
 Скрин подтверждает, что это и был наш `strlen_memcpy`, также можно подтвердить, что по адресу `0x1360` лежит `meowcmp`.
 
-# meowcmp
-![IMAGE 2025-04-26 00:28:35](https://github.com/user-attachments/assets/58e6f411-5b03-4ddd-a1e5-68a6ec5c2724)
+# Meowcmp IDA
+<img src="https://github.com/user-attachments/assets/58e6f411-5b03-4ddd-a1e5-68a6ec5c2724" width="800">
 
 ## Результаты и выводы.
 
