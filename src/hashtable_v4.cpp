@@ -120,33 +120,8 @@ int hashTblAdd(hashTbl_t* hashtbl, char* name){
     if (hashTblVtor(hashtbl)) return ERR;
 
     char smallBuff[MAX_NAME] = {};
-    // int len = strlen(name);
-    // memcpy(smallBuff, name, len);
 
     strlen_memcpy(smallBuff, name);
-    // asm(".intel_syntax noprefix\n\t"
-    //     "push rcx\n\t"
-    //     "push rdi\n\t"
-    //     "push rsi\n\t"
-    //     "inline_asm_loop:\n\t"
-    //     // "lodsb\n\t"
-    //     "mov cl, [rsi]\n\t"
-    //     "inc rsi\n\t"
-    //     "cmp cl, 0\n\t"
-    //     "je inline_asm_end\n\t"
-    //     //"stosb\n\t"
-    //     "mov [rdi], cl\n\t"
-    //     "inc rdi\n\t"
-    //     "jmp inline_asm_loop\n\t"
-    //     "inline_asm_end:\n\t"
-    //     "pop rsi\n\t"
-    //     "pop rdi\n\t"
-    //     "pop rcx\n\t"
-    //     ".att_syntax prefix\n\t"
-    //     : /*no output*/
-    //     : "D"(smallBuff), "S"(name)
-    //     :
-    //     );
 
     unsigned long long hash = countHash(smallBuff);
     bucketAdd(hashtbl, hashtbl->buckets + hash % NUM_BCKT, smallBuff);
@@ -239,7 +214,8 @@ int textParse(hashTbl_t* hashtbl, const char* file){
     size_t fileSize = getFileSize(file);
 
     char* buffer = (char*)calloc(fileSize, sizeof(char));
-    fread(buffer, sizeof(char), fileSize, fileIn);
+    int check = fread(buffer, sizeof(char), fileSize, fileIn);
+    if (!check) abort();
 
     for (int i = 0; i < fileSize; i++){
         if(isalpha(buffer[i])){
@@ -264,7 +240,8 @@ double doTest (hashTbl_t* hashtbl, const char* name){
     size_t size = getFileSize(name);
 
     char* buffer = (char*)calloc(size, sizeof(*buffer));
-    fread(buffer, sizeof(char), size, fileIn);
+    int check = fread(buffer, sizeof(char), size, fileIn);
+    if (!check) abort();
 
     unsigned long long start_rdtsc = __rdtsc();
 

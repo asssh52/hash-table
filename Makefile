@@ -24,6 +24,57 @@ v1:       ./bin/main.o ./bin/hashtable_v1.o
 ./bin/hashtable_v1.o: src/hashtable_v1.cpp hpp/hashtable_v1.hpp
 	$(CXX) -c ./src/hashtable_v1.cpp $(CXXFLAGS) -o ./bin/hashtable_v1.o
 
+
+
+v1_O3:       ./bin/main_O3.o ./bin/hashtable_v1O3.o
+	$(CXX) -O3 ./bin/main_O3.o ./bin/hashtable_v1O3.o $(CXXFLAGS) -o main_O3
+
+./bin/main_O3.o:   src/main.cpp
+	$(CXX) -O3 -c ./src/main.cpp $(CXXFLAGS) -o ./bin/main_O3.o
+
+./bin/hashtable_v1O3.o: src/hashtable_v1.cpp hpp/hashtable_v1.hpp
+	$(CXX) -O3 -c ./src/hashtable_v1.cpp $(CXXFLAGS) -o ./bin/hashtable_v1O3.o
+
+
+
+v2_O3:       ./bin/main2_O3.o ./bin/hashtable_v2O3.o
+	$(CXX) -O3 -msse4.2 ./bin/main2_O3.o ./bin/hashtable_v2O3.o $(CXXFLAGS) -o mainv2_O3
+
+./bin/main2_O3.o:   src/main.cpp
+	$(CXX) -O3 -msse4.2 -c ./src/main.cpp $(CXXFLAGS) -o ./bin/main2_O3.o
+
+./bin/hashtable_v2O3.o: src/hashtable_v2.cpp hpp/hashtable_v1.hpp
+	$(CXX) -O3 -msse4.2 -c ./src/hashtable_v2.cpp $(CXXFLAGS) -o ./bin/hashtable_v2O3.o
+
+
+
+v3_O3:       ./bin/main3_O3.o ./bin/hashtable_v3O3.o ./bin/meowcmp.o
+	$(CXX) -O3 -msse4.2 ./bin/main3_O3.o ./bin/meowcmp.o ./bin/hashtable_v3O3.o $(CXXFLAGS) -o mainv3_O3
+
+./bin/main3_O3.o:   src/main.cpp
+	$(CXX) -O3 -msse4.2 -c ./src/main.cpp $(CXXFLAGS) -o ./bin/main3_O3.o
+
+./bin/hashtable_v3O3.o: src/hashtable_v3.cpp hpp/hashtable_v1.hpp
+	$(CXX) -O3 -msse4.2 -c ./src/hashtable_v3.cpp $(CXXFLAGS) -o ./bin/hashtable_v3O3.o
+
+./bin/meowcmp.o:  src/meowcmp.s
+	nasm -f elf64 meowcmp.s -o ./bin/meowcmp.o
+
+
+
+v4_O3:       ./bin/main4_O3.o ./bin/hashtable_v4O3.o ./bin/meowcmp.o ./bin/strlen_memcpy.o
+	$(CXX) -O3 -msse4.2 ./bin/main4_O3.o ./bin/meowcmp.o ./bin/hashtable_v4O3.o ./bin/strlen_memcpy.o $(CXXFLAGS) -o mainv4_O3
+
+./bin/main4_O3.o:   src/main.cpp
+	$(CXX) -O3 -msse4.2 -c ./src/main.cpp $(CXXFLAGS) -o ./bin/main4_O3.o
+
+./bin/hashtable_v4O3.o: src/hashtable_v4.cpp hpp/hashtable_v1.hpp
+	$(CXX) -O3 -msse4.2 -c ./src/hashtable_v4.cpp $(CXXFLAGS) -o ./bin/hashtable_v4O3.o
+
+./bin/strlen_memcpy.o: src/strlen_memcpy.s
+	nasm -f elf64 strlen_memcpy.s -o ./bin/strlen_memcpy.o
+
+
 parser: src/parser.cpp
 	$(CXX) ./src/parser.cpp -o parser
 

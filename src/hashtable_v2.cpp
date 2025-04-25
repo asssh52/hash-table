@@ -162,15 +162,8 @@ int hashTblFind(hashTbl_t* hashtbl, char* name){
 
 unsigned long long countHash(char* name){
 
-    // int length = MAX_NAME;
     unsigned long long crc = 0xFFFFFFFFFFFFFFFF; // same as previousCrc32 ^ 0xFFFFFFFF
-    // for(int i = 0; i < MAX_NAME; i++){
-    //     crc = crc ^ (name[i]);
-    //     for (unsigned int j = 0; j < 8; j++){
-    //         if (crc & 1){ crc = (crc >> 1) ^ POLYNOM;}
-    //         else{ crc = crc >> 1;}
-    //     }
-    // }
+
     for (int i = 0; i < MAX_NAME / 8; i++){
         unsigned long long next = *((unsigned long long*)name + i);
         crc = _mm_crc32_u64(crc, next);
@@ -178,21 +171,6 @@ unsigned long long countHash(char* name){
 
     return crc;
 }
-
-//=====================================================//
-
-// int crc32_bitwise(const void* data, size_t length){
-//     uint crc = 0xFFFFFFFF; // same as previousCrc32 ^ 0xFFFFFFFF
-//     unsigned char* current = (unsigned char*) data;
-//     while (length--)
-//     {
-//         crc ^= *current++;
-//         for (unsigned int j = 0; j < 8; j++)
-//             if (crc & 1) crc = (crc >> 1) ^ POLYNOM;
-//             else crc = crc >> 1;
-//     }
-//     return ~crc; // same as crc ^ 0xFFFFFFFF
-// }
 
 //=====================================================//
 
@@ -228,7 +206,8 @@ int textParse(hashTbl_t* hashtbl, const char* file){
     size_t fileSize = getFileSize(file);
 
     char* buffer = (char*)calloc(fileSize, sizeof(char));
-    fread(buffer, sizeof(char), fileSize, fileIn);
+    int check = fread(buffer, sizeof(char), fileSize, fileIn);
+    if (!check) abort();
 
     for (int i = 0; i < fileSize; i++){
         if(isalpha(buffer[i])){
@@ -253,7 +232,9 @@ double doTest (hashTbl_t* hashtbl, const char* name){
     size_t size = getFileSize(name);
 
     char* buffer = (char*)calloc(size, sizeof(*buffer));
-    fread(buffer, sizeof(char), size, fileIn);
+    int check = fread(buffer, sizeof(char), size, fileIn);
+
+    if (!check) abort();
 
     unsigned long long start_rdtsc = __rdtsc();
 

@@ -122,7 +122,6 @@ int hashTblAdd(hashTbl_t* hashtbl, char* name){
     int len = strlen(name);
     memcpy(smallBuff, name, len);
 
-
     unsigned long long hash = countHash(smallBuff);
     bucketAdd(hashtbl, hashtbl->buckets + hash % NUM_BCKT, smallBuff);
 
@@ -138,7 +137,6 @@ int bucketAdd(hashTbl_t* hashtbl, bucket_t** list, char* name){
 
     *list = (bucket_t*)calloc(1, sizeof(bucket_t));
 
-    int len = strlen(name) % MAX_NAME;
     memcpy((*list)->name, name, MAX_NAME);
 
     (*list)->next = old_list;
@@ -206,7 +204,8 @@ int textParse(hashTbl_t* hashtbl, const char* file){
     size_t fileSize = getFileSize(file);
 
     char* buffer = (char*)calloc(fileSize, sizeof(char));
-    fread(buffer, sizeof(char), fileSize, fileIn);
+    int check = fread(buffer, sizeof(char), fileSize, fileIn);
+    if (!check) abort();
 
     for (int i = 0; i < fileSize; i++){
         if(isalpha(buffer[i])){
@@ -231,7 +230,8 @@ double doTest (hashTbl_t* hashtbl, const char* name){
     size_t size = getFileSize(name);
 
     char* buffer = (char*)calloc(size, sizeof(*buffer));
-    fread(buffer, sizeof(char), size, fileIn);
+    int check = fread(buffer, sizeof(char), size, fileIn);
+    if (!check) abort();
 
     unsigned long long start_rdtsc = __rdtsc();
 
