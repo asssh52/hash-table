@@ -14,6 +14,20 @@
 - Оптимизировать эти места используя: `intrinsic-функции`, `внешние функции на ассемблере`, `inline-assembler компилятора`.
 - Повторить пункты `3-4`, пока относительное ускорение не достигнет 2-5%.
 
+## Характеристики процессора.
+
+          description: CPU
+          product: QEMU Virtual CPU version 4.2.0
+          vendor: Intel Corp.
+          physical id: 400
+          bus info: cpu@0
+          version: 6.58.9
+          slot: CPU 0
+          size: 2GHz
+          capacity: 2GHz
+          width: 64 bits
+          capabilities: fpu fpu_exception wp vme de pse tsc msr pae mce cx8 apic sep mtrr pge mca cmov pat pse36 clflush mmx fxsr sse sse2 syscall nx pdpe1gb rdtscp x86-64 constant_tsc rep_good nopl xtopology cpuid tsc_known_freq pni pclmulqdq ssse3 fma cx16 pcid sse4_1 sse4_2 x2apic movbe popcnt tsc_deadline_timer aes xsave avx f16c rdrand hypervisor lahf_lm abm cpuid_fault invpcid_single pti ssbd ibrs ibpb fsgsbase tsc_adjust bmi1 avx2 smep bmi2 erms invpcid rdseed adx smap xsaveopt arat md_clear
+          configuration: cores=1 enabledcores=1 microcode=1 threads=1 
 ## Основная часть:
 - Написание базовой версии программы.
 
@@ -291,22 +305,6 @@ strlen_memcpy:
 Говоря о проделанных оптимизациях, суммарно программа была ускорена более чем в 24 раза и в ~4 раза относительно `v1_O3` версии, что на самом деле весьма внушительный результат. Несмотря на это, следует отказаться от последней версии `v4_O3` в сторону `v3_O3`, так как количество строк на ассемблере возросло в 2-3 раза, что сильно ухудшило читаемость и переносимость кода, а на производительность это повлияло незначительно.
 
 Был изучен встроенный ассемблер `g++`, проанализирована дальнейшее поведение программы после компилирования с [godbolt](). Для выяснения результатов профилирования с `valgrind`'ом была использована `IDA` и, собственно, написана хэш-таблица с хэш-функцией `crc32`.
-
-
-## Характеристики процессора.
-
-          description: CPU
-          product: QEMU Virtual CPU version 4.2.0
-          vendor: Intel Corp.
-          physical id: 400
-          bus info: cpu@0
-          version: 6.58.9
-          slot: CPU 0
-          size: 2GHz
-          capacity: 2GHz
-          width: 64 bits
-          capabilities: fpu fpu_exception wp vme de pse tsc msr pae mce cx8 apic sep mtrr pge mca cmov pat pse36 clflush mmx fxsr sse sse2 syscall nx pdpe1gb rdtscp x86-64 constant_tsc rep_good nopl xtopology cpuid tsc_known_freq pni pclmulqdq ssse3 fma cx16 pcid sse4_1 sse4_2 x2apic movbe popcnt tsc_deadline_timer aes xsave avx f16c rdrand hypervisor lahf_lm abm cpuid_fault invpcid_single pti ssbd ibrs ibpb fsgsbase tsc_adjust bmi1 avx2 smep bmi2 erms invpcid rdseed adx smap xsaveopt arat md_clear
-          configuration: cores=1 enabledcores=1 microcode=1 threads=1
         
 ## Полезные ссылки
 - [Гайд по perf'у.](https://habr.com/ru/companies/first/articles/442738/)
