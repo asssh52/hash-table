@@ -238,21 +238,25 @@ int bucketAdd(hashTbl_t* hashtbl, bucket_t** list, char* name){
 
 <img src="/_pictures-readme/godbolt1.jpg" width="800">
 
-`Как O3 оптимизировал memcpy`
+<div align="center">
+Рис. 1 Как O3 оптимизировал memcpy.
+</div>
 
 <br>
 <br>
 
 <img src="/_pictures-readme/godbolt2.jpg" width="800">
 
-`Моя оптимизация memcpy`
-
+<div align="center">
+Рис. 2 Моя оптимизация memcpy.
+</div>
 <br>
 <br>
 
 <img src="/_pictures-readme/godbolt3.jpg" width="800">
-
-`Тот самый 'истинный' вызов memcpy`
+<div align="center">
+Рис. 3 Тот самый 'истинный' вызов memcpy
+</div>
 <br>
 <br>
 
