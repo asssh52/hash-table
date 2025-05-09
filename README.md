@@ -92,7 +92,7 @@ uint calcHash(char* name, uint prevHash){
 
 # Картинка v1_O3
 <img src="/_pictures-readme/v1_O3_val.jpg" width="800">
-<img src="/_pictures-readme/v1_O3_perf.jpg" width="800">
+<img src="/_pictures-readme/v1_O3_perf.jpg" width="600">
 
 Можно заметить, что процент времени занимаемый функциями `hashTableAdd` и `hashTableFind` сильно возрос, а `countHash` пропала вовсе, это происходит из-за инлайнинга функции расчёта хэша в них. Получается, самая используемая функция это `countHash` (не особо и удивительно). Перепишем её используя `intrinsic`-функции:
 
@@ -123,7 +123,7 @@ unsigned long long calcHash(char* name){
 
 # Картинка v2_O3
 <img src="/_pictures-readme/v2_O3_val.jpg" width="800">
-<img src="/_pictures-readme/v2_O3_perf.jpg" width="800">
+<img src="/_pictures-readme/v2_O3_perf.jpg" width="600">
 
 Видим, что время работы программы ускорилось в 3 раза, а доля `strncmp` возросла в ~7 раз - выбор был сделан верный, тут же отчётливо видно следующее место для оптимизации. Так как нам не нужен полный функционал `strncmp`, а нам нужно знать равны ли две строки между собой, покопаемся в [intel intrinsics guide](https://www.laruence.com/sse/#cats=Compare&techs=AVX,AVX2&expand=900) и найдём нужную нам SIMD-инструкцию.
 
@@ -155,7 +155,7 @@ meowcmp:
 Для проверки воспользуемся `perf`'ом.
 
 # Картинка v3_O3
-<img src="/_pictures-readme/v3_O3_perf.jpg" width="800">
+<img src="/_pictures-readme/v3_O3_perf.jpg" width="600">
 
 # Картинка v3_O3
 <img src="/_pictures-readme/v3_O3_annotate.jpg" width="400">
@@ -236,7 +236,7 @@ int bucketAdd(hashTbl_t* hashtbl, bucket_t** list, char* name){
 
 # Скриншоты из godbolt'а
 
-<img src="/_pictures-readme/godbolt1.jpg" width="800">
+<img src="/_pictures-readme/godbolt1.jpg" width="1000">
 
 <div align="center">
 Рис. 1 Как O3 оптимизировал memcpy.
@@ -245,7 +245,7 @@ int bucketAdd(hashTbl_t* hashtbl, bucket_t** list, char* name){
 <br>
 <br>
 
-<img src="/_pictures-readme/godbolt2.jpg" width="800">
+<img src="/_pictures-readme/godbolt2.jpg" width="1000">
 
 <div align="center">
 Рис. 2 Моя оптимизация memcpy.
@@ -253,7 +253,7 @@ int bucketAdd(hashTbl_t* hashtbl, bucket_t** list, char* name){
 <br>
 <br>
 
-<img src="/_pictures-readme/godbolt3.jpg" width="800">
+<img src="/_pictures-readme/godbolt3.jpg" width="1000">
 <div align="center">
 Рис. 3 Тот самый 'истинный' вызов memcpy
 </div>
@@ -303,11 +303,11 @@ strlen_memcpy:
 Исходя из репорта `valgrind`'а можно сделать немало выводов, например, функция `hashTableAdd` теперь заинлайнена в `textParse`, время занятое неким `0x0..01360` сильно увеличилось, как и количество обращений к этому адресу, воспользуеся `perf`'ом для разъяснения ситуации.
 
 # Картинка perf1
-<img src="/_pictures-readme/v4_O3_perf1.jpg" width="800">
+<img src="/_pictures-readme/v4_O3_perf1.jpg" width="600">
 
 
 # Картинка perf2
-<img src="/_pictures-readme/v4_O3_perf2.jpg" width="800">
+<img src="/_pictures-readme/v4_O3_perf2.jpg" width="600">
 
 Даже на этих двух отчётах видно, что частоты "скринов" `perf`'а в 100кГц (максимальная частота) не хватает для абсолютно точного получения данных. Итак, `hashTableAdd` и правда пропал с радаров(2) и был заинлайнен, однако, достаточной информации по эффективности `strlen_memcpy` собрать сложно, так как нам не хватает точности `perf`'а, если сравнивать результаты `valgrind`'а с `perf`'ом, то я считаю, `valgrind` ближее к правде - мы избавились от `memcpy` и `strlen` на ~4%, но появился `0x0..01d70` на ~1%, которым, в теории и должен быть наш `strlen_memcpy`. Итого, разница между ними ~3%, что сходится с экспериментальными данными. Это можно подтвердить или опровергнуть используя дизассемблер.
 
