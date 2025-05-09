@@ -97,9 +97,9 @@ uint calcHash(char* name, uint prevHash){
 Можно заметить, что процент времени занимаемый функциями `hashTableAdd` и `hashTableFind` сильно возрос, а `countHash` пропала вовсе, это происходит из-за инлайнинга функции расчёта хэша в них. Получается, самая используемая функция это `countHash` (не особо и удивительно). Перепишем её используя `intrinsic`-функции:
 
 ```c++
-unsigned long long countHash(char* name){
-    
-    unsigned long long crc = 0xFFFFFFFFFFFFFFFF;
+unsigned long long calcHash(char* name){
+
+    unsigned long long crc = 0xFFFFFFFFFFFFFFFF; // same as previousCrc32 ^ 0xFFFFFFFF
 
     for (int i = 0; i < MAX_NAME / 8; i++){
         unsigned long long next = *((unsigned long long*)name + i);
