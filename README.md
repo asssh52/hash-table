@@ -87,7 +87,7 @@ uint calcHash(char* name, uint prevHash){
 Воспользуемся, например, профилировщиком `valgrind` с утилитой `callgrind` и графической оболочкой для просмотра результатов `kachegrind`, результаты отсортированны по показателю `self`:
 
 # Картинка v1
-<img src="/_pictures-readme/v1_val.jpg" width="800">
+<img src="/_pictures-readme/v1_val.png" width="800">
 
 
 # Картинка v1_O3
@@ -236,7 +236,7 @@ int bucketAdd(hashTbl_t* hashtbl, bucket_t** list, char* name){
 
 # Скриншоты из godbolt'а
 
-<img src="/_pictures-readme/godbolt1.jpg" width="1000">
+<img src="/_pictures-readme/godbolt1.png" width="1000">
 
 <div align="center">
 Рис. 1 Как O3 оптимизировал memcpy.
@@ -245,7 +245,7 @@ int bucketAdd(hashTbl_t* hashtbl, bucket_t** list, char* name){
 <br>
 <br>
 
-<img src="/_pictures-readme/godbolt2.jpg" width="1000">
+<img src="/_pictures-readme/godbolt2.png" width="1000">
 
 <div align="center">
 Рис. 2 Моя оптимизация memcpy.
@@ -253,14 +253,14 @@ int bucketAdd(hashTbl_t* hashtbl, bucket_t** list, char* name){
 <br>
 <br>
 
-<img src="/_pictures-readme/godbolt3.jpg" width="1000">
+<img src="/_pictures-readme/godbolt3.png" width="1000">
 <div align="center">
 Рис. 3 Тот самый 'истинный' вызов memcpy
 </div>
 <br>
 <br>
 
-Оказалось, что оптимизатор уже делал практически ту же самую вещь, только тратил на это 4 инструкции, а не 2. К тому же тут была замечена неиспользуемая нигде функция (`strlen`), которая благополучно выкидывалась оптимизатором компилятора. По этой же причине не было заметно отличий в результате `valgrind`'а, так как никакого вызова `memcpy` и не было. В таком случае, попробуем что-то сделать с первым вызовом. 
+Оказалось, что оптимизатор уже делал практически ту же самую вещь, только тратил на это 4 инструкции, а не 2. К тому же тут была замечена неиспользуемая нигде функция (серая `strlen` на первом рисунке), которая благополучно выкидывалась оптимизатором компилятора. По этой же причине не было заметно отличий в результате `valgrind`'а, так как никакого вызова `memcpy` и не было. В таком случае, попробуем что-то сделать с первым вызовом. 
 
 ```c++
 ...
