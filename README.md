@@ -54,10 +54,10 @@ $$\epsilon = \frac{\sigma_{avg}}{x_{avg}}$$
 const int POLYNOM = 0xEDB88320;
 ...
 
-uint countHash(char* name){
+uint calcHash(char* name, uint prevHash){
 
     int length = MAX_NAME;
-    uint crc = 0xFFFFFFFF;
+    uint crc = prevHash;
     for(int i = 0; i < MAX_NAME; i++){
         crc = crc ^ (name[i]);
         for (unsigned int j = 0; j < 8; j++){
